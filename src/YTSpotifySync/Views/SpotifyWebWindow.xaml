@@ -9,6 +9,18 @@
     Title="Spotify Creators Upload">
 
     <Grid>
-        <WebView2 x:Name="MyWebView" Source="about:blank" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="12,8">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="1. Fazer Login (Se der erro)" Click="GoHome_Click" ToolTipService.ToolTip="Vá para a página inicial para fazer o login no Spotify" />
+                <Button Content="2. Abrir Tela de Upload" Click="GoUpload_Click" Style="{ThemeResource AccentButtonStyle}" />
+            </StackPanel>
+        </Border>
+
+        <WebView2 x:Name="MyWebView" Grid.Row="1" Source="about:blank" />
     </Grid>
 </Window>
