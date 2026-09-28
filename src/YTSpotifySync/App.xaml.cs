@@ -33,7 +33,11 @@ public partial class App : Application
     {
         var services = new ServiceCollection();
 
-        // Services & ViewModels will be registered here as they are created
+        // Services
+        services.AddSingleton<YTSpotifySync.Services.SettingsService>();
+
+        // ViewModels
+        services.AddTransient<YTSpotifySync.ViewModels.SettingsViewModel>();
 
         return services.BuildServiceProvider();
     }
