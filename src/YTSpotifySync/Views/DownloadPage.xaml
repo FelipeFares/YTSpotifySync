@@ -32,16 +32,7 @@
                     Style="{ThemeResource BodyTextBlockStyle}" />
             </StackPanel>
 
-            <!-- Spotify Upload Shortcut Button -->
-            <Button
-                Grid.Column="1"
-                Command="{x:Bind ViewModel.OpenSpotifyUploadCommand}"
-                Height="40">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE767;" Foreground="#1DB954" />
-                    <TextBlock Text="Abrir Spotify Creators (Upload)" FontWeight="SemiBold" />
-                </StackPanel>
-            </Button>
+            <!-- Spotify Upload Shortcut Button Removed -->
         </Grid>
 
         <!-- Action Ribbon -->
@@ -187,7 +178,6 @@
 
                                 <!-- Open Spotify creators upload -->
                                 <Button
-                                    Visibility="{x:Bind IsCompleted, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
                                     Click="OpenSpotify_Click"
                                     ToolTipService.ToolTip="Enviar no Spotify Creators">
                                     <FontIcon Glyph="&#xE767;" Foreground="#1DB954" FontSize="14" />

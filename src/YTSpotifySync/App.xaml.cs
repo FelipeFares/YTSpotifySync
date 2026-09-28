@@ -39,6 +39,7 @@ public partial class App : Application
         services.AddSingleton<YTSpotifySync.Services.SpotifyService>();
         services.AddSingleton<YTSpotifySync.Services.SyncEngine>();
         services.AddSingleton<YTSpotifySync.Services.DownloadService>();
+        services.AddSingleton<YTSpotifySync.Services.SpotifyAutomationService>();
 
         // ViewModels
         services.AddTransient<YTSpotifySync.ViewModels.SettingsViewModel>();
