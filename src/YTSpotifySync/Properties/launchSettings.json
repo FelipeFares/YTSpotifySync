@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "YTSpotifySync (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "YTSpotifySync (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
