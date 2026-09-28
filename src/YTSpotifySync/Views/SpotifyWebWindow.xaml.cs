@@ -44,7 +44,7 @@ public sealed partial class SpotifyWebWindow : Window
         var title = System.Text.Json.JsonSerializer.Serialize(_task.Video.Title);
         var desc = System.Text.Json.JsonSerializer.Serialize(_task.Video.Description);
 
-        // This JS simulates user typing by getting the input element, setting value, and triggering React synthetic events
+        // This JS simulates user typing by getting the exact input elements from Spotify's HTML
         string js = $$"""
         (function() {
             function setNativeValue(element, value) {
@@ -59,17 +59,19 @@ public sealed partial class SpotifyWebWindow : Window
                 }
             }
 
-            // Acha os campos - a estrutura do Spotify pode variar, geralmente é input para título e textarea ou div(draft-js) para descrição
-            const inputs = document.querySelectorAll('input[type="text"], textarea');
-            if (inputs.length >= 1) {
-                const titleInput = inputs[0];
+            // Title Input
+            const titleInput = document.getElementById('title-input') || document.querySelector('input[name="title"]');
+            if (titleInput) {
                 setNativeValue(titleInput, {{title}});
                 titleInput.dispatchEvent(new Event('input', { bubbles: true }));
             }
-            if (inputs.length >= 2) {
-                const descInput = inputs[1];
-                setNativeValue(descInput, {{desc}});
-                descInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+            // Description Input (Slate JS contenteditable div)
+            const descInput = document.querySelector('div[role="textbox"][name="description"]');
+            if (descInput) {
+                descInput.focus();
+                document.execCommand('selectAll', false, null);
+                document.execCommand('insertText', false, {{desc}});
             }
         })();
         """;
