@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace YTSpotifySync.Services;
 
@@ -16,6 +17,12 @@ public class SettingsModel
         Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
         "Downloads",
         "YTSpotifySync");
+}
+
+[JsonSourceGenerationOptions(WriteIndented = true)]
+[JsonSerializable(typeof(SettingsModel))]
+internal partial class SettingsJsonContext : JsonSerializerContext
+{
 }
 
 public class SettingsService
@@ -82,7 +89,7 @@ public class SettingsService
             if (File.Exists(SettingsFilePath))
             {
                 string json = File.ReadAllText(SettingsFilePath);
-                var loaded = JsonSerializer.Deserialize<SettingsModel>(json);
+                var loaded = JsonSerializer.Deserialize(json, SettingsJsonContext.Default.SettingsModel);
                 if (loaded != null)
                 {
                     _settings = loaded;
@@ -108,8 +115,7 @@ public class SettingsService
                 Directory.CreateDirectory(SettingsFolder);
             }
 
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string json = JsonSerializer.Serialize(_settings, options);
+            string json = JsonSerializer.Serialize(_settings, SettingsJsonContext.Default.SettingsModel);
             File.WriteAllText(SettingsFilePath, json);
         }
         catch (Exception)
