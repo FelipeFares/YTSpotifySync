@@ -1,6 +1,6 @@
 # YTSpotifySync Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build a WinUI 3 Windows application that syncs YouTube channel videos to a Spotify for Creators podcast by identifying unmatched content, downloading video files, and directing the user to the Spotify upload page.
 
@@ -44,12 +44,12 @@
 **Interfaces:**
 - Produces: Solution that builds and runs, `MainWindow` with `NavigationView` hosting 4 page stubs, DI container in `App.xaml.cs` with `IServiceProvider`
 
-- [ ] **Step 1: Create the WinUI 3 solution**
+- [x] **Step 1: Create the WinUI 3 solution**
 
 Run: `dotnet new winui3 -n YTSpotifySync -o src/YTSpotifySync --framework net10.0-windows10.0.19041.0`
 Then: `dotnet new sln -n YTSpotifySync` at repo root, `dotnet sln add src/YTSpotifySync/YTSpotifySync.csproj`
 
-- [ ] **Step 2: Add NuGet packages**
+- [x] **Step 2: Add NuGet packages**
 
 ```bash
 cd src/YTSpotifySync
@@ -60,28 +60,28 @@ dotnet add package SpotifyAPI.Web
 dotnet add package Microsoft.Extensions.DependencyInjection
 ```
 
-- [ ] **Step 3: Create folder structure**
+- [x] **Step 3: Create folder structure**
 
 Create empty directories: `Models/`, `Services/`, `ViewModels/`, `Views/`, `Helpers/`, `Assets/`
 
-- [ ] **Step 4: Create placeholder pages**
+- [x] **Step 4: Create placeholder pages**
 
 Create four XAML pages in `Views/`: `DashboardPage.xaml`, `ComparisonPage.xaml`, `DownloadPage.xaml`, `SettingsPage.xaml` — each with a `Page` containing a `TextBlock` placeholder.
 
-- [ ] **Step 5: Implement MainWindow with NavigationView**
+- [x] **Step 5: Implement MainWindow with NavigationView**
 
 `MainWindow.xaml`: `NavigationView` with 4 `NavigationViewItem`s (Dashboard, Comparação, Downloads, Configurações). Frame as content. Code-behind handles `SelectionChanged` to navigate the Frame.
 
-- [ ] **Step 6: Configure DI container in App.xaml.cs**
+- [x] **Step 6: Configure DI container in App.xaml.cs**
 
 Register all services and view models in `IServiceCollection`. Store the `IServiceProvider` as a static property `App.Services`. Views resolve their ViewModels from DI.
 
-- [ ] **Step 7: Build and run**
+- [x] **Step 7: Build and run**
 
 Run: `dotnet build src/YTSpotifySync/YTSpotifySync.csproj`
 Expected: Build succeeds, app launches showing NavigationView with 4 tabs.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add -A
@@ -103,7 +103,7 @@ git commit -m "feat: scaffold WinUI 3 project with NavigationView and DI"
 **Interfaces:**
 - Produces: `VideoItem`, `EpisodeItem`, `SyncResult` records; `VideoType` and `SyncStatus` enums; `TitleNormalizer.Normalize(string) -> string`
 
-- [ ] **Step 1: Create Enums.cs**
+- [x] **Step 1: Create Enums.cs**
 
 ```csharp
 namespace YTSpotifySync.Models;
@@ -111,28 +111,28 @@ public enum VideoType { Upload, LiveStream, Short }
 public enum SyncStatus { Synced, Pending, Downloading, Ready }
 ```
 
-- [ ] **Step 2: Create VideoItem.cs**
+- [x] **Step 2: Create VideoItem.cs**
 
 Record with properties: `string VideoId`, `string Title`, `string Description`, `string ThumbnailUrl`, `DateTime PublishedAt`, `TimeSpan Duration`, `VideoType Type`. Computed property `NormalizedTitle => TitleNormalizer.Normalize(Title)`.
 
-- [ ] **Step 3: Create EpisodeItem.cs**
+- [x] **Step 3: Create EpisodeItem.cs**
 
 Record with properties: `string EpisodeId`, `string Name`, `string Description`, `string ImageUrl`, `DateTime ReleaseDate`, `TimeSpan Duration`. Computed property `NormalizedName => TitleNormalizer.Normalize(Name)`.
 
-- [ ] **Step 4: Create SyncResult.cs**
+- [x] **Step 4: Create SyncResult.cs**
 
 Record: `VideoItem Video`, `EpisodeItem? MatchedEpisode`, `SyncStatus Status`.
 
-- [ ] **Step 5: Implement TitleNormalizer.Normalize(string input) -> string in Helpers/TitleNormalizer.cs**
+- [x] **Step 5: Implement TitleNormalizer.Normalize(string input) -> string in Helpers/TitleNormalizer.cs**
 
 Normalize: lowercase, `string.Normalize(NormalizationForm.FormD)` to decompose accents, strip non-letter/non-digit/non-space via regex, collapse whitespace, trim.
 
-- [ ] **Step 6: Build**
+- [x] **Step 6: Build**
 
 Run: `dotnet build src/YTSpotifySync/YTSpotifySync.csproj`
 Expected: PASS
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add -A
@@ -154,28 +154,28 @@ git commit -m "feat: add data models, enums, and TitleNormalizer"
 - Produces: `SettingsService` with `Load()`, `Save()`, properties for all config fields; `SettingsViewModel` with two-way bindings and `SaveCommand`
 - Consumed by: Task 4 (YouTubeService reads API key), Task 5 (SpotifyService reads credentials), Task 8 (DownloadService reads paths)
 
-- [ ] **Step 1: Implement SettingsService.cs**
+- [x] **Step 1: Implement SettingsService.cs**
 
 Class with properties: `YouTubeApiKey`, `YouTubeChannelId` (default `UCsF18bQeCiSw04faoERqGug`), `SpotifyClientId`, `SpotifyClientSecret`, `SpotifyShowId` (default `3Tx5j7earRSezANSH46i68`), `YtDlpPath`, `DownloadDirectory` (default `%USERPROFILE%/Downloads/YTSpotifySync`). `Load()` reads from `%APPDATA%/YTSpotifySync/settings.json` via `System.Text.Json`. `Save()` writes back. Auto-creates directory/file if missing.
 
-- [ ] **Step 2: Implement SettingsViewModel.cs**
+- [x] **Step 2: Implement SettingsViewModel.cs**
 
 `ObservableObject` with `[ObservableProperty]` for each setting. `[RelayCommand] Save()` calls `SettingsService.Save()`. `[RelayCommand] BrowseYtDlp()` opens file picker. `[RelayCommand] BrowseDownloadDir()` opens folder picker.
 
-- [ ] **Step 3: Build SettingsPage.xaml**
+- [x] **Step 3: Build SettingsPage.xaml**
 
 Fluent Design form: `StackPanel` with labeled `TextBox`es for each field, `PasswordBox` for Spotify secret, `Button`s for browse and save. Group into sections: YouTube, Spotify, Downloads.
 
-- [ ] **Step 4: Register in DI and wire up**
+- [x] **Step 4: Register in DI and wire up**
 
 Add `SettingsService` as singleton in `App.xaml.cs`. Add `SettingsViewModel` as transient. `SettingsPage.xaml.cs` resolves `SettingsViewModel` from `App.Services`.
 
-- [ ] **Step 5: Build and test manually**
+- [x] **Step 5: Build and test manually**
 
 Run: `dotnet build src/YTSpotifySync/YTSpotifySync.csproj`
 Expected: Settings page renders, values save/load from JSON file.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A
@@ -195,7 +195,7 @@ git commit -m "feat: add SettingsService and SettingsPage with JSON persistence"
 - Consumes: `SettingsService.YouTubeApiKey`, `SettingsService.YouTubeChannelId`, `VideoItem`, `VideoType`
 - Produces: `YouTubeService.GetAllVideosAsync(CancellationToken) -> Task<List<VideoItem>>`, `YouTubeService.TestConnectionAsync() -> Task<bool>`
 
-- [ ] **Step 1: Implement YouTubeService.GetAllVideosAsync**
+- [x] **Step 1: Implement YouTubeService.GetAllVideosAsync**
 
 1. Create `YouTubeService` with injected `SettingsService`.
 2. `GetAllVideosAsync`: use `Google.Apis.YouTube.v3` — `Channels.List("contentDetails")` with `Id = channelId` to get `UploadsPlaylistId`.
@@ -203,20 +203,20 @@ git commit -m "feat: add SettingsService and SettingsPage with JSON persistence"
 4. Batch video IDs in groups of 50, call `Videos.List("snippet,contentDetails,liveStreamingDetails")` for each batch.
 5. Map to `VideoItem`: parse `ContentDetails.Duration` (ISO 8601) to `TimeSpan`, check `LiveStreamingDetails != null` for `LiveStream`, `Duration < 60s` for `Short`, else `Upload`.
 
-- [ ] **Step 2: Implement TestConnectionAsync**
+- [x] **Step 2: Implement TestConnectionAsync**
 
 Call `Channels.List("snippet")` with the configured channel ID. Return true if response has items, false otherwise. Catch `GoogleApiException` and return false.
 
-- [ ] **Step 3: Register in DI**
+- [x] **Step 3: Register in DI**
 
 Add `YouTubeService` as singleton in `App.xaml.cs`.
 
-- [ ] **Step 4: Build**
+- [x] **Step 4: Build**
 
 Run: `dotnet build src/YTSpotifySync/YTSpotifySync.csproj`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A
@@ -236,7 +236,7 @@ git commit -m "feat: add YouTubeService with full video listing and classificati
 - Consumes: `SettingsService.SpotifyClientId`, `SettingsService.SpotifyClientSecret`, `SettingsService.SpotifyShowId`, `EpisodeItem`
 - Produces: `SpotifyService.GetAllEpisodesAsync(CancellationToken) -> Task<List<EpisodeItem>>`, `SpotifyService.TestConnectionAsync() -> Task<bool>`
 
-- [ ] **Step 1: Implement SpotifyService.GetAllEpisodesAsync**
+- [x] **Step 1: Implement SpotifyService.GetAllEpisodesAsync**
 
 1. Create `SpotifyService` with injected `SettingsService`.
 2. Authenticate via `ClientCredentialsRequest` using `SpotifyClientConfig.CreateDefault()`.
@@ -244,20 +244,20 @@ git commit -m "feat: add YouTubeService with full video listing and classificati
 4. Paginate with `await spotify.Paginate(...).ToListAsync()`.
 5. Map each `SimpleEpisode` to `EpisodeItem`: `Id`, `Name`, `Description`, `Images[0].Url`, `ReleaseDate` parsed to DateTime, `DurationMs` to TimeSpan.
 
-- [ ] **Step 2: Implement TestConnectionAsync**
+- [x] **Step 2: Implement TestConnectionAsync**
 
 Call `spotify.Shows.Get(showId)`. Return true if successful, false on `APIException`.
 
-- [ ] **Step 3: Register in DI, connect Test Connection buttons in SettingsViewModel**
+- [x] **Step 3: Register in DI, connect Test Connection buttons in SettingsViewModel**
 
 Wire `SettingsViewModel.TestYouTubeCommand` and `TestSpotifyCommand` to call the respective service's `TestConnectionAsync()` and show success/failure.
 
-- [ ] **Step 4: Build**
+- [x] **Step 4: Build**
 
 Run: `dotnet build src/YTSpotifySync/YTSpotifySync.csproj`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A
@@ -279,26 +279,26 @@ git commit -m "feat: add SpotifyService with episode listing and test connection
 - Consumes: `YouTubeService.GetAllVideosAsync()`, `SpotifyService.GetAllEpisodesAsync()`, `VideoItem`, `EpisodeItem`, `SyncResult`, `TitleNormalizer`
 - Produces: `SyncEngine.Compare(List<VideoItem>, List<EpisodeItem>) -> List<SyncResult>`; `DashboardViewModel` with counters and `RefreshCommand`
 
-- [ ] **Step 1: Implement SyncEngine.Compare**
+- [x] **Step 1: Implement SyncEngine.Compare**
 
 For each `VideoItem`, search `episodes` for one whose `NormalizedName` equals `video.NormalizedTitle`. If found: `SyncResult(video, episode, Synced)`. Else: `SyncResult(video, null, Pending)`. Use a `Dictionary<string, EpisodeItem>` keyed by normalized name for O(1) lookup.
 
-- [ ] **Step 2: Implement DashboardViewModel**
+- [x] **Step 2: Implement DashboardViewModel**
 
 `ObservableObject` with `[ObservableProperty]` for `YouTubeVideoCount`, `SpotifyEpisodeCount`, `PendingCount`, `IsLoading`, `ErrorMessage`, `LastSyncTime`. `[RelayCommand] async Refresh()`: call both services in parallel via `Task.WhenAll`, feed results to `SyncEngine.Compare`, update counters. Store the full `List<SyncResult>` for navigation to ComparisonPage.
 
-- [ ] **Step 3: Build DashboardPage.xaml**
+- [x] **Step 3: Build DashboardPage.xaml**
 
 Three stat cards in a horizontal `StackPanel`: YouTube icon + count (red), Spotify icon + count (green), Pending icon + count (orange). Below: "Sincronizar Agora" button. Below that: last sync time. Loading overlay with `ProgressRing`.
 
-- [ ] **Step 4: Register in DI and wire up**
+- [x] **Step 4: Register in DI and wire up**
 
-- [ ] **Step 5: Build and run**
+- [x] **Step 5: Build and run**
 
 Run: `dotnet build src/YTSpotifySync/YTSpotifySync.csproj`
 Expected: Dashboard shows, clicking Sync calls APIs and displays counts.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A
@@ -319,24 +319,24 @@ git commit -m "feat: add SyncEngine and DashboardPage with live counters"
 - Consumes: `SyncEngine.Compare()`, `YouTubeService`, `SpotifyService`, `SyncResult`
 - Produces: `ComparisonViewModel` with filtered `ObservableCollection<SyncResult>`, `SelectedItems`, and `DownloadSelectedCommand`
 
-- [ ] **Step 1: Implement ComparisonViewModel**
+- [x] **Step 1: Implement ComparisonViewModel**
 
 `ObservableObject` with `ObservableCollection<SyncResult> AllResults` and `ObservableCollection<SyncResult> FilteredResults`. Properties: `SelectedFilter` (All/Pending/Synced), `SelectedTypeFilter` (All/Upload/LiveStream/Short), `SearchText`. On any filter change, re-compute `FilteredResults`. Multi-select support via `ObservableCollection<SyncResult> SelectedItems`. `[RelayCommand] DownloadSelected()`: navigates to DownloadPage passing selected items.
 
-- [ ] **Step 2: Build ComparisonPage.xaml**
+- [x] **Step 2: Build ComparisonPage.xaml**
 
 Filter bar: three toggle buttons (Todos/Pendentes/Sincronizados) + ComboBox for type filter + SearchBox. ListView with `DataTemplate`: thumbnail (48x48), title, type icon badge, YouTube date, Spotify status badge (green check or orange clock), checkbox for selection. Bottom bar: "Download Selecionados ({count})" button.
 
-- [ ] **Step 3: Register in DI and wire navigation from Dashboard**
+- [x] **Step 3: Register in DI and wire navigation from Dashboard**
 
 When user clicks "Sincronizar" on Dashboard, after sync completes, auto-navigate to ComparisonPage with results.
 
-- [ ] **Step 4: Build and run**
+- [x] **Step 4: Build and run**
 
 Run: `dotnet build src/YTSpotifySync/YTSpotifySync.csproj`
 Expected: Comparison page shows filtered list of videos with status.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A
@@ -360,38 +360,38 @@ git commit -m "feat: add ComparisonPage with filters and multi-select"
 - Consumes: `SettingsService.YtDlpPath`, `SettingsService.DownloadDirectory`, `SettingsService.SpotifyShowId`, `VideoItem`
 - Produces: `DownloadService.DownloadVideoAsync(string videoId, string outputDir, IProgress<double>, CancellationToken) -> Task<string>`, `DownloadService.DownloadThumbnailAsync(string url, string outputDir) -> Task<string>`, `BrowserLauncher.OpenSpotifyUploadPage(string showId)`
 
-- [ ] **Step 1: Create DownloadTask model**
+- [x] **Step 1: Create DownloadTask model**
 
 Record/class: `VideoItem Video`, `double Progress` (0-100), `string Status` (Queued/Downloading/Completed/Failed/Cancelled), `string? OutputPath`, `string? ErrorMessage`. Implements `INotifyPropertyChanged`.
 
-- [ ] **Step 2: Implement DownloadService**
+- [x] **Step 2: Implement DownloadService**
 
 `DownloadVideoAsync`: build `ProcessStartInfo` for yt-dlp with args `-f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" --merge-output-format mp4 --newline -o "{outputDir}/%(title)s.%(ext)s" "https://youtube.com/watch?v={videoId}"`. Read stdout line-by-line, parse `[download]  XX.X%` pattern, report to `IProgress<double>`. Handle `CancellationToken` by killing the process. Timeout: kill if no output for 120s. Return output file path.
 
 `DownloadThumbnailAsync`: use `HttpClient` to download thumbnail to `{outputDir}/{videoId}_thumb.jpg`.
 
-- [ ] **Step 3: Implement BrowserLauncher**
+- [x] **Step 3: Implement BrowserLauncher**
 
 `OpenSpotifyUploadPage(showId)`: call `Process.Start(new ProcessStartInfo("https://creators.spotify.com/dash/show/{showId}/episode/new") { UseShellExecute = true })`.
 
-- [ ] **Step 4: Implement DownloadViewModel**
+- [x] **Step 4: Implement DownloadViewModel**
 
 `ObservableCollection<DownloadTask> Queue`. `[RelayCommand] async StartDownloads()`: iterate queue sequentially, update each task's progress. `[RelayCommand] OpenInSpotify()`: calls `BrowserLauncher`. `[RelayCommand] OpenFolder(DownloadTask)`: opens containing folder in Explorer. `[RelayCommand] Cancel(DownloadTask)`: triggers cancellation.
 
-- [ ] **Step 5: Build DownloadPage.xaml**
+- [x] **Step 5: Build DownloadPage.xaml**
 
 ListView of `DownloadTask` items with `DataTemplate`: thumbnail, title, progress bar, percentage text, status badge, action buttons (Cancel/Open Folder/Open Spotify). Top: "Iniciar Downloads" and "Abrir Spotify Upload" global buttons. Summary text: "X de Y concluídos".
 
-- [ ] **Step 6: Register in DI, wire navigation from ComparisonPage**
+- [x] **Step 6: Register in DI, wire navigation from ComparisonPage**
 
 "Download Selecionados" button creates `DownloadTask` instances and navigates to DownloadPage.
 
-- [ ] **Step 7: Build and run**
+- [x] **Step 7: Build and run**
 
 Run: `dotnet build src/YTSpotifySync/YTSpotifySync.csproj`
 Expected: Download page shows queue, downloads work with progress, Spotify opens in browser.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add -A
@@ -414,38 +414,38 @@ git commit -m "feat: add DownloadService, BrowserLauncher, and DownloadPage"
 - Consumes: all existing Views and ViewModels
 - Produces: polished, production-ready UI
 
-- [ ] **Step 1: Apply Mica backdrop**
+- [x] **Step 1: Apply Mica backdrop**
 
 In `MainWindow.xaml.cs`, set `SystemBackdrop = new MicaBackdrop()`. Extend title bar into the window chrome.
 
-- [ ] **Step 2: Add navigation icons**
+- [x] **Step 2: Add navigation icons**
 
 Use Segoe Fluent Icons for NavigationViewItems: Dashboard (Home), Comparação (ArrowRepeatAll), Downloads (Download), Configurações (Settings).
 
-- [ ] **Step 3: Add page transition animations**
+- [x] **Step 3: Add page transition animations**
 
 Set `Frame.ContentTransitions` with `NavigationThemeTransition` for smooth page transitions.
 
-- [ ] **Step 4: Implement empty states**
+- [x] **Step 4: Implement empty states**
 
 For Dashboard (no data yet), ComparisonPage (no results), DownloadPage (empty queue): show friendly illustrations and "Comece por..." guidance messages.
 
-- [ ] **Step 5: Improve error messages**
+- [x] **Step 5: Improve error messages**
 
 All error messages in Portuguese. InfoBar control for non-blocking errors. ContentDialog for blocking errors (e.g., missing yt-dlp).
 
-- [ ] **Step 6: Write README.md**
+- [x] **Step 6: Write README.md**
 
 Sections: Sobre, Requisitos (yt-dlp, ffmpeg, YouTube API key, Spotify credentials), Instalação, Uso, Screenshots.
 
-- [ ] **Step 7: Push everything and update GitHub issues**
+- [x] **Step 7: Push everything and update GitHub issues**
 
 ```bash
 git push origin main
 ```
 Close all GitHub issues in the milestone.
 
-- [ ] **Step 8: Final build and smoke test**
+- [x] **Step 8: Final build and smoke test**
 
 Run: `dotnet build src/YTSpotifySync/YTSpotifySync.csproj -c Release`
 Expected: Clean build, app runs, all pages navigate, settings save/load.
