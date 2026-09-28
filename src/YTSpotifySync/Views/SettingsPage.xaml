@@ -46,6 +46,7 @@
 
                     <TextBox
                         Header="YouTube API Key"
+                        AutomationProperties.AutomationId="YoutubeApiKeyTextBox"
                         PlaceholderText="Insira sua API Key (Google Cloud Console)"
                         Text="{x:Bind ViewModel.YouTubeApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
@@ -83,11 +84,13 @@
 
                     <TextBox
                         Header="Spotify Client ID"
+                        AutomationProperties.AutomationId="SpotifyClientIdTextBox"
                         PlaceholderText="Insira o Client ID do app no Spotify Developer Dashboard"
                         Text="{x:Bind ViewModel.SpotifyClientId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                     <PasswordBox
                         x:Name="SecretBox"
+                        AutomationProperties.AutomationId="SpotifyClientSecretBox"
                         Header="Spotify Client Secret"
                         PasswordChanged="SecretBox_PasswordChanged"
                         PlaceholderText="Insira o Client Secret" />
@@ -164,6 +167,7 @@
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <Button
                     Command="{x:Bind ViewModel.SaveCommand}"
+                    AutomationProperties.AutomationId="SaveSettingsButton"
                     Content="Salvar Configurações"
                     Style="{ThemeResource AccentButtonStyle}" />
             </StackPanel>

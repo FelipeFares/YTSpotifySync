@@ -104,6 +104,16 @@ public class SettingsService
             }
             else
             {
+                string localAppSettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
+                if (File.Exists(localAppSettingsPath))
+                {
+                    string json = File.ReadAllText(localAppSettingsPath);
+                    var loaded = JsonSerializer.Deserialize(json, SettingsJsonContext.Default.SettingsModel);
+                    if (loaded != null)
+                    {
+                        _settings = loaded;
+                    }
+                }
                 Save(); // Save default values
             }
         }

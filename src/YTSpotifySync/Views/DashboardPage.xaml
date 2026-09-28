@@ -138,6 +138,8 @@
 
                     <StackPanel Orientation="Horizontal" Spacing="14">
                         <Button
+                            x:Name="SyncNowButton"
+                            AutomationProperties.AutomationId="SyncNowButton"
                             Command="{x:Bind ViewModel.SyncNowCommand}"
                             IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
                             Style="{ThemeResource AccentButtonStyle}"

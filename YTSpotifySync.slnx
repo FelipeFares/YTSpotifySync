@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/YTSpotifySync.E2ETests/YTSpotifySync.E2ETests.csproj" />
     <Project Path="src/YTSpotifySync/YTSpotifySync.csproj" />
   </Folder>
 </Solution>

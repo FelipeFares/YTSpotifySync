@@ -37,6 +37,7 @@
             SelectionChanged="NavView_SelectionChanged">
             <NavigationView.MenuItems>
                 <NavigationViewItem
+                    AutomationProperties.AutomationId="NavDashboard"
                     Content="Dashboard"
                     IsSelected="True"
                     Tag="dashboard">
@@ -44,12 +45,12 @@
                         <FontIcon Glyph="&#xE80F;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Comparação" Tag="comparison">
+                <NavigationViewItem AutomationProperties.AutomationId="NavComparison" Content="Comparação" Tag="comparison">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE8AB;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Downloads" Tag="downloads">
+                <NavigationViewItem AutomationProperties.AutomationId="NavDownloads" Content="Downloads" Tag="downloads">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE896;" />
                     </NavigationViewItem.Icon>

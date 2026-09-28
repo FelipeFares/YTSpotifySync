@@ -21,6 +21,24 @@ public sealed partial class MainWindow : Window
 
         // Navigate to default page
         NavFrame.Navigate(typeof(DashboardPage));
+        
+        ((FrameworkElement)this.Content).Loaded += Grid_Loaded;
+    }
+    
+    private bool _hasCheckedWizard = false;
+    private async void Grid_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (_hasCheckedWizard) return;
+        _hasCheckedWizard = true;
+
+        var settings = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<YTSpotifySync.Services.SettingsService>(App.Services);
+        if (string.IsNullOrWhiteSpace(settings.YouTubeApiKey) || string.IsNullOrWhiteSpace(settings.SpotifyClientId))
+        {
+            var dialog = new WizardDialog();
+            dialog.XamlRoot = this.Content.XamlRoot;
+            await dialog.ShowAsync();
+            NavigateTo(typeof(SettingsPage));
+        }
     }
 
     private void TitleBar_PaneToggleRequested(TitleBar sender, object args)

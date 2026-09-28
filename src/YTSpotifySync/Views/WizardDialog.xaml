@@ -1,0 +1,26 @@
+<ContentDialog
+    x:Class="YTSpotifySync.Views.WizardDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Bem-vindo ao YTSpotifySync!"
+    PrimaryButtonText="Configurar Agora"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+
+    <StackPanel Spacing="12" MaxWidth="500">
+        <TextBlock Text="Parece que é sua primeira vez aqui! Para usar o aplicativo, você precisa de algumas dependências e chaves de API." TextWrapping="Wrap" />
+        
+        <TextBlock Text="Dependências (ffmpeg e yt-dlp)" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="0,10,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+            <ProgressRing x:Name="DependencyProgress" IsActive="True" Width="20" Height="20" />
+            <FontIcon x:Name="DependencyIcon" Glyph="&#xE73E;" Visibility="Collapsed" />
+            <TextBlock x:Name="DependencyStatusText" Text="Verificando dependências..." VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="400" />
+        </StackPanel>
+
+        <TextBlock Text="APIs Necessárias" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="0,10,0,0" />
+        <TextBlock Text="1. YouTube Data API v3 (Google Cloud Console)" TextWrapping="Wrap" />
+        <HyperlinkButton Content="Como obter a chave do YouTube" NavigateUri="https://developers.google.com/youtube/v3/getting-started" />
+        
+        <TextBlock Text="2. Spotify Developer App (Client ID e Secret)" TextWrapping="Wrap" />
+        <HyperlinkButton Content="Como obter as credenciais do Spotify" NavigateUri="https://developer.spotify.com/dashboard" />
+    </StackPanel>
+</ContentDialog>
