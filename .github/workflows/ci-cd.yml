@@ -28,10 +28,10 @@ jobs:
             9.0.x
 
       - name: Restore NuGet Packages
-        run: dotnet restore src/YTSpotifySync/YTSpotifySync.csproj
+        run: dotnet restore src/YTSpotifySync/YTSpotifySync.csproj -r win-x64
 
       - name: Build Solution (Release)
-        run: dotnet build src/YTSpotifySync/YTSpotifySync.csproj -c Release --no-restore
+        run: dotnet build src/YTSpotifySync/YTSpotifySync.csproj -c Release -r win-x64 --no-restore
 
   publish:
     name: Publish & Artifacts (CD)
