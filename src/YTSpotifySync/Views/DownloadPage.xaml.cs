@@ -36,9 +36,16 @@ public sealed partial class DownloadPage : Page
         }
     }
 
-    private void OpenSpotify_Click(object sender, RoutedEventArgs e)
+    private async void OpenSpotify_Click(object sender, RoutedEventArgs e)
     {
-        ViewModel.OpenSpotifyUpload();
+        if (sender is FrameworkElement { DataContext: DownloadTask task })
+        {
+            var dataPackage = new Windows.ApplicationModel.DataTransfer.DataPackage();
+            dataPackage.SetText($"{task.Video.Title}\n\n{task.Video.Description}");
+            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
+
+            await ViewModel.OpenSpotifyUploadAsync(task);
+        }
     }
 
     private void RemoveTask_Click(object sender, RoutedEventArgs e)

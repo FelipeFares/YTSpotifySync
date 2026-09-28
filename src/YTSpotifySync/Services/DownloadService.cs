@@ -2,6 +2,8 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -49,6 +51,7 @@ public partial class DownloadService
         // Check common locations
         string[] candidates =
         [
+            Path.Combine(AppContext.BaseDirectory, "Tools", "yt-dlp.exe"),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "yt-dlp.exe"),
             Path.Combine(AppContext.BaseDirectory, "yt-dlp.exe"),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "yt-dlp", "yt-dlp.exe")
@@ -62,7 +65,7 @@ public partial class DownloadService
         string? fallback = FindInPath("yt-dlp.exe");
         if (fallback != null) return fallback;
 
-        return "yt-dlp"; // Fallback to PATH invocation
+        throw new Exception("yt-dlp.exe não foi encontrado! Baixe o yt-dlp (https://github.com/yt-dlp/yt-dlp/releases) e configure o caminho nas Configurações, ou instale via 'winget install yt-dlp'.");
     }
 
     private static string? FindInPath(string fileName)
@@ -106,6 +109,35 @@ public partial class DownloadService
         }
     }
 
+    public async Task EnsureDependenciesAsync(IProgress<string>? statusProgress = null)
+    {
+        string toolsDir = Path.Combine(AppContext.BaseDirectory, "Tools");
+        if (!Directory.Exists(toolsDir)) Directory.CreateDirectory(toolsDir);
+
+        string ytDlpPath = Path.Combine(toolsDir, "yt-dlp.exe");
+        if (!File.Exists(ytDlpPath))
+        {
+            statusProgress?.Report("Baixando yt-dlp.exe...");
+            var bytes = await _httpClient.GetByteArrayAsync("https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe");
+            await File.WriteAllBytesAsync(ytDlpPath, bytes);
+        }
+
+        string ffmpegPath = Path.Combine(toolsDir, "ffmpeg.exe");
+        if (!File.Exists(ffmpegPath))
+        {
+            statusProgress?.Report("Baixando FFmpeg (isso pode demorar alguns minutos)...");
+            var zipBytes = await _httpClient.GetByteArrayAsync("https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip");
+            
+            using var ms = new MemoryStream(zipBytes);
+            using var archive = new ZipArchive(ms);
+            var ffmpegEntry = archive.Entries.FirstOrDefault(e => e.FullName.EndsWith("ffmpeg.exe", StringComparison.OrdinalIgnoreCase));
+            if (ffmpegEntry != null)
+            {
+                ffmpegEntry.ExtractToFile(ffmpegPath, overwrite: true);
+            }
+        }
+    }
+
     /// <summary>
     /// Downloads a YouTube video using yt-dlp with real-time percentage progress and cancellation support.
     /// </summary>
@@ -121,11 +153,14 @@ public partial class DownloadService
             Directory.CreateDirectory(outputDir);
         }
 
+        await EnsureDependenciesAsync(statusProgress);
+
         string ytDlpPath = ResolveYtDlpPath();
+        string toolsDir = Path.Combine(AppContext.BaseDirectory, "Tools");
 
         // Template ensures file has title and video ID: OutputDir/%(title)s [%(id)s].%(ext)s
         string outputTemplate = Path.Combine(outputDir, "%(title).100s [%(id)s].%(ext)s");
-        string args = $"-f \"bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best\" --merge-output-format mp4 --newline --no-playlist -o \"{outputTemplate}\" \"https://www.youtube.com/watch?v={video.VideoId}\"";
+        string args = $"--ffmpeg-location \"{toolsDir}\" -f \"bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best\" --merge-output-format mp4 --newline --no-playlist -o \"{outputTemplate}\" \"https://www.youtube.com/watch?v={video.VideoId}\"";
 
         var startInfo = new ProcessStartInfo
         {
@@ -163,11 +198,14 @@ public partial class DownloadService
             }
         };
 
+        var errorMessages = new System.Collections.Generic.List<string>();
+
         process.ErrorDataReceived += (s, e) =>
         {
             if (!string.IsNullOrEmpty(e.Data))
             {
                 statusProgress?.Report(e.Data);
+                errorMessages.Add(e.Data);
             }
         };
 
@@ -197,7 +235,12 @@ public partial class DownloadService
 
             if (process.ExitCode != 0 && !cancellationToken.IsCancellationRequested)
             {
-                throw new Exception($"yt-dlp finalizou com código de erro {process.ExitCode}");
+                string fullError = string.Join(Environment.NewLine, errorMessages);
+                if (string.IsNullOrWhiteSpace(fullError))
+                {
+                    fullError = "Nenhuma mensagem de erro detalhada foi capturada.";
+                }
+                throw new Exception($"yt-dlp finalizou com erro (Código: {process.ExitCode}):\n{fullError}");
             }
 
             // Find downloaded file if not detected directly from stdout

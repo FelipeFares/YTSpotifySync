@@ -16,6 +16,7 @@ public partial class DownloadViewModel : ObservableObject
     private readonly SettingsService _settingsService;
     private readonly DownloadService _downloadService;
     private readonly SyncEngine _syncEngine;
+    private readonly SpotifyAutomationService _spotifyAutomationService;
 
     public ObservableCollection<DownloadTask> Queue { get; } = new();
 
@@ -37,11 +38,13 @@ public partial class DownloadViewModel : ObservableObject
     public DownloadViewModel(
         SettingsService settingsService,
         DownloadService downloadService,
-        SyncEngine syncEngine)
+        SyncEngine syncEngine,
+        SpotifyAutomationService spotifyAutomationService)
     {
         _settingsService = settingsService;
         _downloadService = downloadService;
         _syncEngine = syncEngine;
+        _spotifyAutomationService = spotifyAutomationService;
     }
 
     public void EnqueueItems(IEnumerable<SyncResult> items)
@@ -127,7 +130,7 @@ public partial class DownloadViewModel : ObservableObject
                 {
                     task.IsFailed = true;
                     task.IsActive = false;
-                    task.Status = "Erro no download";
+                    task.Status = $"Erro: {ex.Message}";
                     task.ErrorMessage = ex.Message;
                 }
 
@@ -164,9 +167,12 @@ public partial class DownloadViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void OpenSpotifyUpload()
+    public async Task OpenSpotifyUploadAsync(DownloadTask task)
     {
-        BrowserLauncher.OpenSpotifyUploadPage(_settingsService.SpotifyShowId);
+        if (task != null)
+        {
+            await _spotifyAutomationService.OpenSpotifyUploadPageAsync(_settingsService.SpotifyCreatorShowId ?? _settingsService.SpotifyShowId, task);
+        }
     }
 
     [RelayCommand]
