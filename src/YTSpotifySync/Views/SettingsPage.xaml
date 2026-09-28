@@ -53,6 +53,18 @@
                         Header="ID do Canal do YouTube"
                         PlaceholderText="ex: UCsF18bQeCiSw04faoERqGug"
                         Text="{x:Bind ViewModel.YouTubeChannelId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button
+                            Command="{x:Bind ViewModel.TestYouTubeCommand}"
+                            Content="Testar Conexão YouTube" />
+                        <ProgressRing IsActive="{x:Bind ViewModel.IsTestingYouTube, Mode=OneWay}" Width="20" Height="20" />
+                    </StackPanel>
+
+                    <InfoBar
+                        IsOpen="{x:Bind ViewModel.HasYouTubeTestResult, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.YouTubeTestResult, Mode=OneWay}"
+                        Severity="{x:Bind ViewModel.IsYouTubeTestSuccess, Mode=OneWay, Converter={StaticResource BoolToSeverityConverter}}" />
                 </StackPanel>
             </Border>
 
@@ -84,6 +96,18 @@
                         Header="ID do Podcast (Show ID)"
                         PlaceholderText="ex: 3Tx5j7earRSezANSH46i68"
                         Text="{x:Bind ViewModel.SpotifyShowId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button
+                            Command="{x:Bind ViewModel.TestSpotifyCommand}"
+                            Content="Testar Conexão Spotify" />
+                        <ProgressRing IsActive="{x:Bind ViewModel.IsTestingSpotify, Mode=OneWay}" Width="20" Height="20" />
+                    </StackPanel>
+
+                    <InfoBar
+                        IsOpen="{x:Bind ViewModel.HasSpotifyTestResult, Mode=OneWay}"
+                        Message="{x:Bind ViewModel.SpotifyTestResult, Mode=OneWay}"
+                        Severity="{x:Bind ViewModel.IsSpotifyTestSuccess, Mode=OneWay, Converter={StaticResource BoolToSeverityConverter}}" />
                 </StackPanel>
             </Border>
 

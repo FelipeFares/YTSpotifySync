@@ -10,6 +10,8 @@ namespace YTSpotifySync.ViewModels;
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly SettingsService _settingsService;
+    private readonly YouTubeService _youtubeService;
+    private readonly SpotifyService _spotifyService;
 
     [ObservableProperty]
     public partial string YouTubeApiKey { get; set; } = string.Empty;
@@ -38,9 +40,38 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsSuccessInfoOpen { get; set; }
 
-    public SettingsViewModel(SettingsService settingsService)
+    [ObservableProperty]
+    public partial bool IsTestingYouTube { get; set; }
+
+    [ObservableProperty]
+    public partial string YouTubeTestResult { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial bool HasYouTubeTestResult { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsYouTubeTestSuccess { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsTestingSpotify { get; set; }
+
+    [ObservableProperty]
+    public partial string SpotifyTestResult { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial bool HasSpotifyTestResult { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsSpotifyTestSuccess { get; set; }
+
+    public SettingsViewModel(
+        SettingsService settingsService,
+        YouTubeService youtubeService,
+        SpotifyService spotifyService)
     {
         _settingsService = settingsService;
+        _youtubeService = youtubeService;
+        _spotifyService = spotifyService;
         LoadFromService();
     }
 
@@ -70,6 +101,60 @@ public partial class SettingsViewModel : ObservableObject
 
         StatusMessage = "Configurações salvas com sucesso!";
         IsSuccessInfoOpen = true;
+    }
+
+    [RelayCommand]
+    public async Task TestYouTubeAsync()
+    {
+        Save();
+        IsTestingYouTube = true;
+        HasYouTubeTestResult = false;
+
+        try
+        {
+            bool ok = await _youtubeService.TestConnectionAsync();
+            IsYouTubeTestSuccess = ok;
+            YouTubeTestResult = ok
+                ? "Conexão com YouTube bem-sucedida! Canal localizado."
+                : "Falha na conexão com YouTube. Verifique a API Key e o ID do Canal.";
+        }
+        catch (Exception ex)
+        {
+            IsYouTubeTestSuccess = false;
+            YouTubeTestResult = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            IsTestingYouTube = false;
+            HasYouTubeTestResult = true;
+        }
+    }
+
+    [RelayCommand]
+    public async Task TestSpotifyAsync()
+    {
+        Save();
+        IsTestingSpotify = true;
+        HasSpotifyTestResult = false;
+
+        try
+        {
+            bool ok = await _spotifyService.TestConnectionAsync();
+            IsSpotifyTestSuccess = ok;
+            SpotifyTestResult = ok
+                ? "Conexão com Spotify bem-sucedida! Podcast localizado."
+                : "Falha na conexão com Spotify. Verifique Client ID, Client Secret e ID do Podcast.";
+        }
+        catch (Exception ex)
+        {
+            IsSpotifyTestSuccess = false;
+            SpotifyTestResult = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            IsTestingSpotify = false;
+            HasSpotifyTestResult = true;
+        }
     }
 
     [RelayCommand]
