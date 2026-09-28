@@ -13,6 +13,12 @@
             
             <helpers:BoolToSeverityConverter x:Key="BoolToSeverityConverter" />
             <helpers:InverseBoolConverter x:Key="InverseBoolConverter" />
+            <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+            <helpers:IntToBoolConverter x:Key="IntToBoolConverter" />
+            <helpers:DownloadButtonTextConverter x:Key="DownloadButtonTextConverter" />
+            <helpers:ItemsCountConverter x:Key="ItemsCountConverter" />
+            <helpers:SelectedCountConverter x:Key="SelectedCountConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
