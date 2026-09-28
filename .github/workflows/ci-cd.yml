@@ -53,8 +53,12 @@ jobs:
       - name: Publish WinUI 3 Desktop App
         run: >
           dotnet publish src/YTSpotifySync/YTSpotifySync.csproj
-          -p:PublishProfile=win-x64
           -c Release
+          -r win-x64
+          -p:PublishSingleFile=true
+          -p:SelfContained=true
+          -p:WindowsAppSDKSelfContained=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
           -p:EnableMsixTooling=true
           -o ./publish/YTSpotifySync
 
