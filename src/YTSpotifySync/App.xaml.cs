@@ -37,9 +37,11 @@ public partial class App : Application
         services.AddSingleton<YTSpotifySync.Services.SettingsService>();
         services.AddSingleton<YTSpotifySync.Services.YouTubeService>();
         services.AddSingleton<YTSpotifySync.Services.SpotifyService>();
+        services.AddSingleton<YTSpotifySync.Services.SyncEngine>();
 
         // ViewModels
         services.AddTransient<YTSpotifySync.ViewModels.SettingsViewModel>();
+        services.AddSingleton<YTSpotifySync.ViewModels.DashboardViewModel>();
 
         return services.BuildServiceProvider();
     }

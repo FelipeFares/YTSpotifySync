@@ -5,12 +5,210 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:YTSpotifySync.ViewModels"
     mc:Ignorable="d">
 
-    <Grid Padding="36">
-        <StackPanel Spacing="12">
-            <TextBlock Text="Dashboard" Style="{ThemeResource TitleTextBlockStyle}" />
-            <TextBlock Text="Carregando estatísticas..." Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel
+            MaxWidth="1000"
+            Margin="36,24,36,36"
+            HorizontalAlignment="Left"
+            Spacing="28">
+
+            <!-- Title & Subtitle -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Painel de Controle" Style="{ThemeResource TitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Gerencie a sincronização dos seus vídeos do canal do YouTube com o seu podcast no Spotify."
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{ThemeResource BodyTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Error Banner -->
+            <InfoBar
+                Title="Atenção"
+                IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
+                Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                Severity="Error" />
+
+            <!-- Stat Cards Grid -->
+            <Grid ColumnSpacing="16" RowSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- YouTube Card -->
+                <Border
+                    Grid.Column="0"
+                    Padding="20"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                    <StackPanel Spacing="10">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE714;" Foreground="#FF0000" FontSize="18" />
+                            <TextBlock Text="YouTube" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                        <TextBlock
+                            Text="{x:Bind ViewModel.YouTubeVideoCount, Mode=OneWay}"
+                            FontSize="32"
+                            FontWeight="Bold" />
+                        <TextBlock Text="Vídeos no canal" Foreground="{ThemeResource TextFillColorTertiaryBrush}" FontSize="12" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Spotify Card -->
+                <Border
+                    Grid.Column="1"
+                    Padding="20"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                    <StackPanel Spacing="10">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE767;" Foreground="#1DB954" FontSize="18" />
+                            <TextBlock Text="Spotify" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                        <TextBlock
+                            Text="{x:Bind ViewModel.SpotifyEpisodeCount, Mode=OneWay}"
+                            FontSize="32"
+                            FontWeight="Bold" />
+                        <TextBlock Text="Episódios no podcast" Foreground="{ThemeResource TextFillColorTertiaryBrush}" FontSize="12" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Pending Card -->
+                <Border
+                    Grid.Column="2"
+                    Padding="20"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="#FF8C00"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                    <StackPanel Spacing="10">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE823;" Foreground="#FF8C00" FontSize="18" />
+                            <TextBlock Text="Pendentes" FontWeight="SemiBold" Foreground="#FF8C00" />
+                        </StackPanel>
+                        <TextBlock
+                            Text="{x:Bind ViewModel.PendingCount, Mode=OneWay}"
+                            Foreground="#FF8C00"
+                            FontSize="32"
+                            FontWeight="Bold" />
+                        <TextBlock Text="Vídeos para subir no Spotify" Foreground="{ThemeResource TextFillColorTertiaryBrush}" FontSize="12" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Synced Card -->
+                <Border
+                    Grid.Column="3"
+                    Padding="20"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                    <StackPanel Spacing="10">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE73E;" Foreground="#0078D4" FontSize="18" />
+                            <TextBlock Text="Sincronizados" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                        <TextBlock
+                            Text="{x:Bind ViewModel.SyncedCount, Mode=OneWay}"
+                            FontSize="32"
+                            FontWeight="Bold" />
+                        <TextBlock Text="Já presentes no podcast" Foreground="{ThemeResource TextFillColorTertiaryBrush}" FontSize="12" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Main Actions & Sync Progress Box -->
+            <Border
+                Padding="24"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Ações de Sincronização" Style="{ThemeResource SubtitleTextBlockStyle}" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="14">
+                        <Button
+                            Command="{x:Bind ViewModel.SyncNowCommand}"
+                            IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                            Style="{ThemeResource AccentButtonStyle}"
+                            Height="40">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE895;" />
+                                <TextBlock Text="Sincronizar Agora" FontWeight="SemiBold" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button
+                            Command="{x:Bind ViewModel.NavigateToComparisonCommand}"
+                            IsEnabled="{x:Bind ViewModel.HasSynced, Mode=OneWay}"
+                            Height="40">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8AB;" />
+                                <TextBlock Text="Ver Lista de Comparação" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button
+                            Command="{x:Bind ViewModel.NavigateToDownloadsCommand}"
+                            Height="40">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE896;" />
+                                <TextBlock Text="Fila de Downloads" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Status Indicator -->
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                        <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" Width="18" Height="18" />
+                        <TextBlock
+                            Text="{x:Bind ViewModel.StatusText, Mode=OneWay}"
+                            VerticalAlignment="Center"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+
+                    <!-- Timestamp -->
+                    <TextBlock
+                        Text="{x:Bind ViewModel.LastSyncTimeFormatted, Mode=OneWay}"
+                        Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                        FontSize="12" />
+                </StackPanel>
+            </Border>
+
+            <!-- Guide Card -->
+            <Border
+                Padding="20"
+                Background="{ThemeResource LayerFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <StackPanel Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE946;" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                        <TextBlock Text="Como funciona o fluxo?" FontWeight="SemiBold" />
+                    </StackPanel>
+                    <TextBlock
+                        Text="1. Clique em 'Sincronizar Agora' para buscar os vídeos do seu canal e os episódios do Spotify."
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock
+                        Text="2. Acesse 'Comparação' para ver quais vídeos ainda não estão no Spotify e selecione os desejados."
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <TextBlock
+                        Text="3. Na página de Downloads, baixe os vídeos com yt-dlp e clique para abrir a tela de novo episódio no Spotify for Creators."
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </Border>
+
         </StackPanel>
-    </Grid>
+    </ScrollViewer>
 </Page>
