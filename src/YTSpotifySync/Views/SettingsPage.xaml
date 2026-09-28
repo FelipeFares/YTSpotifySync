@@ -5,12 +5,145 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:YTSpotifySync.ViewModels"
     mc:Ignorable="d">
 
-    <Grid Padding="36">
-        <StackPanel Spacing="12">
-            <TextBlock Text="Configurações" Style="{ThemeResource TitleTextBlockStyle}" />
-            <TextBlock Text="Configurações de API e pastas do sistema." Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel
+            MaxWidth="800"
+            Margin="36,24,36,36"
+            HorizontalAlignment="Left"
+            Spacing="24">
+
+            <!-- Header -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Configurações" Style="{ThemeResource TitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Configure as chaves de API, credenciais e diretórios de download."
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{ThemeResource BodyTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Success Notification -->
+            <InfoBar
+                Title="Sucesso"
+                IsOpen="{x:Bind ViewModel.IsSuccessInfoOpen, Mode=TwoWay}"
+                Message="{x:Bind ViewModel.StatusMessage, Mode=OneWay}"
+                Severity="Success" />
+
+            <!-- YouTube Section Card -->
+            <Border
+                Padding="24"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <StackPanel Spacing="16">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <FontIcon Glyph="&#xE714;" Foreground="#FF0000" FontSize="20" />
+                        <TextBlock Text="YouTube Data API" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                    </StackPanel>
+
+                    <TextBox
+                        Header="YouTube API Key"
+                        PlaceholderText="Insira sua API Key (Google Cloud Console)"
+                        Text="{x:Bind ViewModel.YouTubeApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBox
+                        Header="ID do Canal do YouTube"
+                        PlaceholderText="ex: UCsF18bQeCiSw04faoERqGug"
+                        Text="{x:Bind ViewModel.YouTubeChannelId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Spotify Section Card -->
+            <Border
+                Padding="24"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <StackPanel Spacing="16">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <FontIcon Glyph="&#xE767;" Foreground="#1DB954" FontSize="20" />
+                        <TextBlock Text="Spotify for Creators / Spotify Developer" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                    </StackPanel>
+
+                    <TextBox
+                        Header="Spotify Client ID"
+                        PlaceholderText="Insira o Client ID do app no Spotify Developer Dashboard"
+                        Text="{x:Bind ViewModel.SpotifyClientId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <PasswordBox
+                        x:Name="SecretBox"
+                        Header="Spotify Client Secret"
+                        PasswordChanged="SecretBox_PasswordChanged"
+                        PlaceholderText="Insira o Client Secret" />
+
+                    <TextBox
+                        Header="ID do Podcast (Show ID)"
+                        PlaceholderText="ex: 3Tx5j7earRSezANSH46i68"
+                        Text="{x:Bind ViewModel.SpotifyShowId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Downloads & Tools Section Card -->
+            <Border
+                Padding="24"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <StackPanel Spacing="16">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <FontIcon Glyph="&#xE896;" Foreground="#0078D4" FontSize="20" />
+                        <TextBlock Text="Downloads &amp; Ferramentas" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                    </StackPanel>
+
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox
+                            Grid.Column="0"
+                            Header="Caminho do executável yt-dlp"
+                            PlaceholderText="yt-dlp ou caminho completo para yt-dlp.exe"
+                            Text="{x:Bind ViewModel.YtDlpPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button
+                            Grid.Column="1"
+                            Margin="0,28,0,0"
+                            Command="{x:Bind ViewModel.BrowseYtDlpCommand}"
+                            Content="Procurar..." />
+                    </Grid>
+
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox
+                            Grid.Column="0"
+                            Header="Pasta de Download dos Vídeos"
+                            PlaceholderText="Caminho para onde os vídeos serão baixados"
+                            Text="{x:Bind ViewModel.DownloadDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button
+                            Grid.Column="1"
+                            Margin="0,28,0,0"
+                            Command="{x:Bind ViewModel.BrowseDownloadDirCommand}"
+                            Content="Procurar..." />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Actions -->
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button
+                    Command="{x:Bind ViewModel.SaveCommand}"
+                    Content="Salvar Configurações"
+                    Style="{ThemeResource AccentButtonStyle}" />
+            </StackPanel>
+
         </StackPanel>
-    </Grid>
+    </ScrollViewer>
 </Page>
