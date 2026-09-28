@@ -19,6 +19,8 @@
             <helpers:DownloadButtonTextConverter x:Key="DownloadButtonTextConverter" />
             <helpers:ItemsCountConverter x:Key="ItemsCountConverter" />
             <helpers:SelectedCountConverter x:Key="SelectedCountConverter" />
+            <helpers:PercentTextConverter x:Key="PercentTextConverter" />
+            <helpers:DownloadedCountConverter x:Key="DownloadedCountConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

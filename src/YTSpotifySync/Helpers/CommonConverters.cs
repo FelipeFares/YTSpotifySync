@@ -93,3 +93,37 @@ public class SelectedCountConverter : IValueConverter
         throw new NotImplementedException();
     }
 }
+
+public class PercentTextConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is double pct)
+        {
+            return $"{pct:F0}%";
+        }
+        return "0%";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class DownloadedCountConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is int count)
+        {
+            return $"{count} concluído(s)";
+        }
+        return "0 concluídos";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}
