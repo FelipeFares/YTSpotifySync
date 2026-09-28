@@ -11,7 +11,8 @@ public class SettingsModel
     public string YouTubeChannelId { get; set; } = "UCsF18bQeCiSw04faoERqGug";
     public string SpotifyClientId { get; set; } = "";
     public string SpotifyClientSecret { get; set; } = "";
-    public string SpotifyShowId { get; set; } = "3Tx5j7earRSezANSH46i68";
+    public string SpotifyShowId { get; set; } = "0zU6hZslboizglsSm3VHnm";
+    public string SpotifyCreatorShowId { get; set; } = "3Tx5j7earRSezANSH46i68";
     public string YtDlpPath { get; set; } = "yt-dlp";
     public string DownloadDirectory { get; set; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
@@ -63,6 +64,12 @@ public class SettingsService
     {
         get => _settings.SpotifyShowId;
         set => _settings.SpotifyShowId = value;
+    }
+
+    public string SpotifyCreatorShowId
+    {
+        get => _settings.SpotifyCreatorShowId;
+        set => _settings.SpotifyCreatorShowId = value;
     }
 
     public string YtDlpPath

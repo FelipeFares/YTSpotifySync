@@ -11,9 +11,10 @@ public static class BrowserLauncher
     /// </summary>
     public static void OpenSpotifyUploadPage(string showId)
     {
-        string url = string.IsNullOrWhiteSpace(showId)
+        string creatorId = showId == "0zU6hZslboizglsSm3VHnm" ? "3Tx5j7earRSezANSH46i68" : showId;
+        string url = string.IsNullOrWhiteSpace(creatorId)
             ? "https://creators.spotify.com/dash"
-            : $"https://creators.spotify.com/dash/show/{showId}/episode/new";
+            : $"https://creators.spotify.com/dash/show/{creatorId}/episode/new";
 
         try
         {
