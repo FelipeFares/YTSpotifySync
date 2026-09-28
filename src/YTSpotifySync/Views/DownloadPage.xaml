@@ -5,12 +5,243 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:YTSpotifySync.Models"
+    xmlns:vm="using:YTSpotifySync.ViewModels"
     mc:Ignorable="d">
 
-    <Grid Padding="36">
-        <StackPanel Spacing="12">
-            <TextBlock Text="Fila de Downloads" Style="{ThemeResource TitleTextBlockStyle}" />
-            <TextBlock Text="Gerencie os downloads dos vídeos pendentes." Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-        </StackPanel>
+    <Grid RowSpacing="18" Margin="36,24,36,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Text="Fila de Downloads" Style="{ThemeResource TitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Baixe os vídeos pendentes em formato MP4 e faça o envio direto no Spotify for Creators."
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{ThemeResource BodyTextBlockStyle}" />
+            </StackPanel>
+
+            <!-- Spotify Upload Shortcut Button -->
+            <Button
+                Grid.Column="1"
+                Command="{x:Bind ViewModel.OpenSpotifyUploadCommand}"
+                Height="40">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE767;" Foreground="#1DB954" />
+                    <TextBlock Text="Abrir Spotify Creators (Upload)" FontWeight="SemiBold" />
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Action Ribbon -->
+        <Border
+            Grid.Row="1"
+            Padding="14"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <Button
+                        Command="{x:Bind ViewModel.StartAllCommand}"
+                        IsEnabled="{x:Bind ViewModel.IsDownloadingAny, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                        Style="{ThemeResource AccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE896;" />
+                            <TextBlock Text="Iniciar Downloads" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{x:Bind ViewModel.OpenDownloadFolderCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xED25;" />
+                            <TextBlock Text="Abrir Pasta" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{x:Bind ViewModel.ClearCompletedCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE74D;" />
+                            <TextBlock Text="Limpar Concluídos" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <ProgressRing IsActive="{x:Bind ViewModel.IsDownloadingAny, Mode=OneWay}" Width="16" Height="16" />
+                    <TextBlock
+                        Text="{x:Bind ViewModel.GlobalStatusMessage, Mode=OneWay}"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        FontSize="13" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Download Tasks List -->
+        <ListView
+            Grid.Row="2"
+            ItemsSource="{x:Bind ViewModel.Queue}"
+            SelectionMode="None"
+            Visibility="{x:Bind ViewModel.HasItems, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="models:DownloadTask">
+                    <Border
+                        Margin="0,4,0,4"
+                        Padding="16"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="220" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Thumbnail -->
+                            <Border
+                                Grid.Column="0"
+                                Width="110"
+                                Height="62"
+                                CornerRadius="4"
+                                Background="{ThemeResource LayerFillColorDefaultBrush}">
+                                <Image
+                                    Source="{x:Bind Video.ThumbnailUrl}"
+                                    Stretch="UniformToFill" />
+                            </Border>
+
+                            <!-- Info -->
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                                <TextBlock
+                                    Text="{x:Bind Video.Title}"
+                                    FontWeight="SemiBold"
+                                    FontSize="14"
+                                    TextTrimming="CharacterEllipsis"
+                                    MaxLines="2" />
+
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Border
+                                        Padding="6,2"
+                                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                        CornerRadius="4">
+                                        <TextBlock
+                                            Text="{x:Bind Video.TypeDisplayName}"
+                                            FontSize="11"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </Border>
+                                    <TextBlock
+                                        Text="{x:Bind Video.DurationFormatted}"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Progress & Status Column -->
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="6">
+                                <Grid>
+                                    <TextBlock
+                                        Text="{x:Bind Status, Mode=OneWay}"
+                                        FontSize="12"
+                                        FontWeight="SemiBold"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    <TextBlock
+                                        Text="{x:Bind Progress, Mode=OneWay, Converter={StaticResource PercentTextConverter}}"
+                                        HorizontalAlignment="Right"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                </Grid>
+                                <ProgressBar
+                                    Value="{x:Bind Progress, Mode=OneWay}"
+                                    Maximum="100"
+                                    IsIndeterminate="{x:Bind IsActive, Mode=OneWay}" />
+                            </StackPanel>
+
+                            <!-- Action Buttons -->
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <!-- Open file in folder button when completed -->
+                                <Button
+                                    Visibility="{x:Bind IsCompleted, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Click="OpenFile_Click"
+                                    ToolTipService.ToolTip="Mostrar arquivo no Explorer">
+                                    <FontIcon Glyph="&#xED25;" FontSize="14" />
+                                </Button>
+
+                                <!-- Open Spotify creators upload -->
+                                <Button
+                                    Visibility="{x:Bind IsCompleted, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Click="OpenSpotify_Click"
+                                    ToolTipService.ToolTip="Enviar no Spotify Creators">
+                                    <FontIcon Glyph="&#xE767;" Foreground="#1DB954" FontSize="14" />
+                                </Button>
+
+                                <!-- Cancel / Delete task -->
+                                <Button
+                                    Click="RemoveTask_Click"
+                                    ToolTipService.ToolTip="Remover da fila">
+                                    <FontIcon Glyph="&#xE74D;" FontSize="14" />
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <!-- Empty State -->
+        <Border
+            Grid.Row="2"
+            Visibility="{x:Bind ViewModel.HasItems, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+            Padding="48"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <StackPanel Spacing="14" HorizontalAlignment="Center">
+                <FontIcon Glyph="&#xE896;" FontSize="48" Foreground="{ThemeResource TextFillColorTertiaryBrush}" HorizontalAlignment="Center" />
+                <TextBlock
+                    Text="Nenhum download na fila"
+                    Style="{ThemeResource SubtitleTextBlockStyle}"
+                    HorizontalAlignment="Center" />
+                <TextBlock
+                    Text="Vá até a aba de Comparação e selecione os vídeos pendentes que deseja baixar."
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    HorizontalAlignment="Center" />
+                <Button
+                    Click="GoToComparison_Click"
+                    Content="Ir para Comparação"
+                    Style="{ThemeResource AccentButtonStyle}"
+                    HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Footer -->
+        <Border
+            Grid.Row="3"
+            Padding="12,8"
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            CornerRadius="4">
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <TextBlock Text="{x:Bind ViewModel.CompletedCount, Mode=OneWay, Converter={StaticResource DownloadedCountConverter}}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" />
+                <TextBlock Text="de" Foreground="{ThemeResource TextFillColorTertiaryBrush}" FontSize="12" />
+                <TextBlock Text="{x:Bind ViewModel.TotalInQueue, Mode=OneWay, Converter={StaticResource ItemsCountConverter}}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" />
+            </StackPanel>
+        </Border>
     </Grid>
 </Page>
