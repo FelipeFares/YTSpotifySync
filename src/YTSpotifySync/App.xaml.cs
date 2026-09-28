@@ -42,6 +42,7 @@ public partial class App : Application
         // ViewModels
         services.AddTransient<YTSpotifySync.ViewModels.SettingsViewModel>();
         services.AddSingleton<YTSpotifySync.ViewModels.DashboardViewModel>();
+        services.AddSingleton<YTSpotifySync.ViewModels.ComparisonViewModel>();
 
         return services.BuildServiceProvider();
     }

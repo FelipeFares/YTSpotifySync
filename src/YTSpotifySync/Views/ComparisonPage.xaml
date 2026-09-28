@@ -5,12 +5,268 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:YTSpotifySync.Models"
+    xmlns:vm="using:YTSpotifySync.ViewModels"
     mc:Ignorable="d">
 
-    <Grid Padding="36">
-        <StackPanel Spacing="12">
-            <TextBlock Text="Comparação de Vídeos e Podcasts" Style="{ThemeResource TitleTextBlockStyle}" />
-            <TextBlock Text="Lista comparativa dos vídeos do YouTube e episódios do Spotify." Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-        </StackPanel>
+    <Grid RowSpacing="18" Margin="36,24,36,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Spacing="4">
+                <TextBlock Text="Comparação de Conteúdo" Style="{ThemeResource TitleTextBlockStyle}" />
+                <TextBlock
+                    Text="Compare os vídeos do canal do YouTube com os episódios publicados no Spotify."
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{ThemeResource BodyTextBlockStyle}" />
+            </StackPanel>
+
+            <Button
+                Grid.Column="1"
+                Command="{x:Bind ViewModel.SendSelectedToDownloadsCommand}"
+                IsEnabled="{x:Bind ViewModel.SelectedCount, Mode=OneWay, Converter={StaticResource IntToBoolConverter}}"
+                Style="{ThemeResource AccentButtonStyle}"
+                Height="40">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE896;" />
+                    <TextBlock Text="{x:Bind ViewModel.SelectedCount, Mode=OneWay, Converter={StaticResource DownloadButtonTextConverter}}" FontWeight="SemiBold" />
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Filter & Search Bar -->
+        <Border
+            Grid.Row="1"
+            Padding="14"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            CornerRadius="8">
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Status Filter ComboBox -->
+                <ComboBox
+                    Grid.Column="0"
+                    SelectedIndex="{x:Bind ViewModel.StatusFilterIndex, Mode=TwoWay}"
+                    Header="Filtrar por Status"
+                    MinWidth="160">
+                    <ComboBoxItem Content="Todos os Vídeos" />
+                    <ComboBoxItem Content="Apenas Pendentes" />
+                    <ComboBoxItem Content="Já Sincronizados" />
+                </ComboBox>
+
+                <!-- Type Filter ComboBox -->
+                <ComboBox
+                    Grid.Column="1"
+                    SelectedIndex="{x:Bind ViewModel.TypeFilterIndex, Mode=TwoWay}"
+                    Header="Tipo de Conteúdo"
+                    MinWidth="150">
+                    <ComboBoxItem Content="Todos os Tipos" />
+                    <ComboBoxItem Content="Vídeos Normais" />
+                    <ComboBoxItem Content="Ao Vivo (Lives)" />
+                    <ComboBoxItem Content="Shorts" />
+                </ComboBox>
+
+                <!-- Search Box -->
+                <TextBox
+                    Grid.Column="2"
+                    Header="Buscar Título"
+                    PlaceholderText="Digite para filtrar por título..."
+                    Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                <!-- Select All Button -->
+                <Button
+                    Grid.Column="3"
+                    Margin="0,24,0,0"
+                    Command="{x:Bind ViewModel.SelectAllCommand}"
+                    Content="Selecionar Todos" />
+            </Grid>
+        </Border>
+
+        <!-- Video List -->
+        <ListView
+            Grid.Row="2"
+            ItemsSource="{x:Bind ViewModel.FilteredResults}"
+            SelectionMode="None"
+            Visibility="{x:Bind ViewModel.HasItems, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="models:SyncResult">
+                    <Border
+                        Margin="0,4,0,4"
+                        Padding="14"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <Grid ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Checkbox for selection -->
+                            <CheckBox
+                                Grid.Column="0"
+                                IsChecked="{x:Bind IsSelected, Mode=TwoWay}"
+                                VerticalAlignment="Center" />
+
+                            <!-- Thumbnail Image -->
+                            <Border
+                                Grid.Column="1"
+                                Width="100"
+                                Height="56"
+                                CornerRadius="4"
+                                Background="{ThemeResource LayerFillColorDefaultBrush}">
+                                <Image
+                                    Source="{x:Bind Video.ThumbnailUrl}"
+                                    Stretch="UniformToFill" />
+                            </Border>
+
+                            <!-- Video Details -->
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4">
+                                <TextBlock
+                                    Text="{x:Bind Video.Title}"
+                                    FontWeight="SemiBold"
+                                    FontSize="14"
+                                    TextTrimming="CharacterEllipsis"
+                                    MaxLines="2" />
+
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <Border
+                                        Padding="6,2"
+                                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                        CornerRadius="4">
+                                        <TextBlock
+                                            Text="{x:Bind Video.TypeDisplayName}"
+                                            FontSize="11"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                    </Border>
+
+                                    <TextBlock
+                                        Text="{x:Bind Video.DurationFormatted}"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        VerticalAlignment="Center" />
+
+                                    <TextBlock
+                                        Text="•"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                        VerticalAlignment="Center" />
+
+                                    <TextBlock
+                                        Text="{x:Bind Video.PublishedAtFormatted}"
+                                        FontSize="12"
+                                        Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                        VerticalAlignment="Center" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Status Badge & Actions -->
+                            <StackPanel
+                                Grid.Column="3"
+                                Orientation="Horizontal"
+                                Spacing="12"
+                                VerticalAlignment="Center">
+
+                                <!-- Pending Badge -->
+                                <Border
+                                    Visibility="{x:Bind IsPending, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Padding="10,4"
+                                    Background="#22FF8C00"
+                                    BorderBrush="#FF8C00"
+                                    BorderThickness="1"
+                                    CornerRadius="12">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE823;" Foreground="#FF8C00" FontSize="12" />
+                                        <TextBlock Text="Pendente" Foreground="#FF8C00" FontSize="12" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Synced Badge -->
+                                <Border
+                                    Visibility="{x:Bind IsSynced, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Padding="10,4"
+                                    Background="#221DB954"
+                                    BorderBrush="#1DB954"
+                                    BorderThickness="1"
+                                    CornerRadius="12">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <FontIcon Glyph="&#xE73E;" Foreground="#1DB954" FontSize="12" />
+                                        <TextBlock Text="No Spotify" Foreground="#1DB954" FontSize="12" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Open in YouTube Button -->
+                                <HyperlinkButton
+                                    NavigateUri="{x:Bind Video.VideoUrl}"
+                                    ToolTipService.ToolTip="Abrir no YouTube">
+                                    <FontIcon Glyph="&#xE8A7;" FontSize="14" />
+                                </HyperlinkButton>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <!-- Empty State -->
+        <Border
+            Grid.Row="2"
+            Visibility="{x:Bind ViewModel.HasItems, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+            Padding="48"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <StackPanel Spacing="14" HorizontalAlignment="Center">
+                <FontIcon Glyph="&#xE8AB;" FontSize="48" Foreground="{ThemeResource TextFillColorTertiaryBrush}" HorizontalAlignment="Center" />
+                <TextBlock
+                    Text="Nenhum vídeo encontrado"
+                    Style="{ThemeResource SubtitleTextBlockStyle}"
+                    HorizontalAlignment="Center" />
+                <TextBlock
+                    Text="Nenhum item corresponde ao filtro ou nenhuma sincronização foi realizada ainda."
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    HorizontalAlignment="Center" />
+                <Button
+                    Command="{x:Bind ViewModel.NavigateToDashboardCommand}"
+                    Content="Ir para o Dashboard e Sincronizar"
+                    Style="{ThemeResource AccentButtonStyle}"
+                    HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Summary Status Footer -->
+        <Border
+            Grid.Row="3"
+            Padding="12,8"
+            Background="{ThemeResource LayerFillColorDefaultBrush}"
+            CornerRadius="4">
+            <Grid>
+                <StackPanel Orientation="Horizontal" Spacing="16">
+                    <TextBlock Text="{x:Bind ViewModel.FilteredResults.Count, Mode=OneWay, Converter={StaticResource ItemsCountConverter}}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" />
+                    <TextBlock Text="|" Foreground="{ThemeResource TextFillColorTertiaryBrush}" FontSize="12" />
+                    <TextBlock Text="{x:Bind ViewModel.SelectedCount, Mode=OneWay, Converter={StaticResource SelectedCountConverter}}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" />
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Page>
