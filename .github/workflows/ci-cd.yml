@@ -1,0 +1,79 @@
+name: CI/CD Pipeline - YTSpotifySync
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build & Verify (CI)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            9.0.x
+
+      - name: Restore NuGet Packages
+        run: dotnet restore src/YTSpotifySync/YTSpotifySync.csproj
+
+      - name: Build Solution (Release)
+        run: dotnet build src/YTSpotifySync/YTSpotifySync.csproj -c Release --no-restore
+
+  publish:
+    name: Publish & Artifacts (CD)
+    needs: build
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            9.0.x
+
+      - name: Publish WinUI 3 Desktop App
+        run: >
+          dotnet publish src/YTSpotifySync/YTSpotifySync.csproj
+          -c Release
+          -r win-x64
+          -o ./publish/YTSpotifySync
+
+      - name: Package ZIP Bundle
+        shell: pwsh
+        run: |
+          Compress-Archive -Path ./publish/YTSpotifySync/* -DestinationPath ./YTSpotifySync-win-x64.zip -Force
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: YTSpotifySync-Windows-x64
+          path: ./YTSpotifySync-win-x64.zip
+          retention-days: 14
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./YTSpotifySync-win-x64.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
