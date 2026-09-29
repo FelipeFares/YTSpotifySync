@@ -170,6 +170,8 @@ namespace YTSpotifySync.E2ETests
         {
             if (_mainWindow != null)
             {
+                try { _mainWindow.Focus(); } catch { }
+                Thread.Sleep(500); // Give it time to paint
                 var image = Capture.Element(_mainWindow);
                 string path = Path.Combine(_artifactsDir, $"{name}.png");
                 image.ToFile(path);

@@ -40,6 +40,8 @@ public sealed partial class SpotifyWebWindow : Window
     {
         if (_task == null || MyWebView.CoreWebView2 == null) return;
 
+        Logger.Log("FillData_Click invoked.");
+
         // Escape JSON safely
         var title = System.Text.Json.JsonSerializer.Serialize(_task.Video.Title);
         var desc = System.Text.Json.JsonSerializer.Serialize(_task.Video.Description);
@@ -47,17 +49,23 @@ public sealed partial class SpotifyWebWindow : Window
         // This JS simulates user typing by getting the exact input elements from Spotify's HTML
         string js = $$"""
         (function() {
+            let logs = [];
+            function log(msg) { logs.push(msg); }
+
             try {
+                log('Setting title...');
                 // Title Input
                 const titleInput = document.getElementById('title-input') || document.querySelector('input[name="title"]');
                 if (titleInput) {
                     const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
                     nativeInputValueSetter.call(titleInput, {{title}});
                     titleInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            } catch (e) { console.error('Error setting title:', e); }
+                    log('Title set.');
+                } else { log('Title input not found'); }
+            } catch (e) { log('Error setting title: ' + e.message); }
 
             try {
+                log('Setting description...');
                 // Description Input (Slate JS contenteditable div)
                 const descInput = document.querySelector('div[role="textbox"][name="description"]');
                 if (descInput) {
@@ -76,41 +84,53 @@ public sealed partial class SpotifyWebWindow : Window
                         cancelable: true
                     });
                     descInput.dispatchEvent(pasteEvent);
-                }
-            } catch (e) { console.error('Error setting description:', e); }
+                    log('Description pasted.');
+                } else { log('Description textbox not found'); }
+            } catch (e) { log('Error setting description: ' + e.message); }
 
             try {
+                log('Setting checks...');
                 // Content Checks (e.g. 18+ and Explicit Content)
                 const eighteenPlus = document.querySelector('input[name="isVideoEighteenPlus"]');
                 if (eighteenPlus && eighteenPlus.checked) {
                     eighteenPlus.click(); // Ensure it defaults to "No"
+                    log('Clicked eighteenPlus');
                 }
 
                 const explicitContent = document.querySelector('input[name="isExplicit"]');
                 if (explicitContent && explicitContent.checked) {
                     explicitContent.click(); // Ensure it defaults to "No"
+                    log('Clicked explicitContent');
                 }
-            } catch (e) { console.error('Error setting checks:', e); }
+            } catch (e) { log('Error setting checks: ' + e.message); }
+
+            return logs.join(' | ');
         })();
         """;
 
-        await MyWebView.CoreWebView2.ExecuteScriptAsync(js);
+        Logger.Log("Executing JS payload...");
+        var result = await MyWebView.CoreWebView2.ExecuteScriptAsync(js);
+        Logger.Log($"JS Result: {result}");
 
         // Thumbnail Automation using Chrome DevTools Protocol
         if (!string.IsNullOrEmpty(_task.ThumbnailPath))
         {
+            Logger.Log($"Attempting to set thumbnail via CDP: {_task.ThumbnailPath}");
             try
             {
                 // Retrieve the backend objectId of the file input
                 string getFileInputJs = "document.querySelector('input[type=\"file\"]')";
                 var evaluationResult = await MyWebView.CoreWebView2.CallDevToolsProtocolMethodAsync("Runtime.evaluate", 
                     $"{{\"expression\":\"{getFileInputJs}\"}}");
+                
+                Logger.Log($"CDP Evaluate Result: {evaluationResult}");
 
                 using var doc = System.Text.Json.JsonDocument.Parse(evaluationResult);
                 if (doc.RootElement.TryGetProperty("result", out var resultObj) && 
                     resultObj.TryGetProperty("objectId", out var objectIdElement))
                 {
                     string objectId = objectIdElement.GetString()!;
+                    Logger.Log($"Found objectId: {objectId}");
                     
                     // Convert local path to an array format for the CDP method
                     string filesJson = System.Text.Json.JsonSerializer.Serialize(new[] { _task.ThumbnailPath });
@@ -118,13 +138,25 @@ public sealed partial class SpotifyWebWindow : Window
                     
                     // Invoke DOM.setFileInputFiles to attach the file
                     await MyWebView.CoreWebView2.CallDevToolsProtocolMethodAsync("DOM.setFileInputFiles", setFilesArgs);
+                    Logger.Log("CDP setFileInputFiles called successfully.");
+                }
+                else
+                {
+                    Logger.Log("Failed to extract objectId from CDP result.");
                 }
             }
             catch (Exception ex)
             {
+                Logger.Log($"Erro ao setar a thumbnail via CDP: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"Erro ao setar a thumbnail via CDP: {ex.Message}");
             }
         }
+        else
+        {
+            Logger.Log("No ThumbnailPath provided in task.");
+        }
+        
+        Logger.Log("FillData_Click finished.");
     }
 
     private async void InitializeWebView(string url)
