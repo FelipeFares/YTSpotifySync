@@ -168,10 +168,13 @@ namespace YTSpotifySync.E2ETests
 
         private void CaptureScreenshot(string name)
         {
-            var image = Capture.Screen();
-            string path = Path.Combine(_artifactsDir, $"{name}.png");
-            image.ToFile(path);
-            _output.WriteLine($"Screenshot saved to {path}");
+            if (_mainWindow != null)
+            {
+                var image = Capture.Element(_mainWindow);
+                string path = Path.Combine(_artifactsDir, $"{name}.png");
+                image.ToFile(path);
+                _output.WriteLine($"Screenshot saved to {path}");
+            }
         }
 
         public void Dispose()
