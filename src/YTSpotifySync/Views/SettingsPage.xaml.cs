@@ -22,4 +22,11 @@ public sealed partial class SettingsPage : Page
             ViewModel.SpotifyClientSecret = pb.Password;
         }
     }
+
+    private async void OpenWizard_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        var dialog = new WizardDialog();
+        dialog.XamlRoot = this.XamlRoot;
+        await dialog.ShowAsync();
+    }
 }

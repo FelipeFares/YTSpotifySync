@@ -170,6 +170,9 @@
                     AutomationProperties.AutomationId="SaveSettingsButton"
                     Content="Salvar Configurações"
                     Style="{ThemeResource AccentButtonStyle}" />
+                <Button
+                    Click="OpenWizard_Click"
+                    Content="Abrir Assistente de Configuração" />
             </StackPanel>
 
         </StackPanel>
