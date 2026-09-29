@@ -26,12 +26,13 @@ namespace YTSpotifySync.E2ETests
             
             // Build the path to the unpackaged exe
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            string exePath = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "YTSpotifySync", "bin", "Debug", "net10.0-windows10.0.26100.0", "win-x64", "YTSpotifySync.exe"));
+            string config = baseDir.Contains("\\Release\\") ? "Release" : "Debug";
+            string exePath = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "YTSpotifySync", "bin", config, "net10.0-windows10.0.26100.0", "win-x64", "YTSpotifySync.exe"));
             
             if (!File.Exists(exePath))
             {
                 // Fallback for different build output structures
-                exePath = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..", "YTSpotifySync", "bin", "Debug", "net10.0-windows10.0.26100.0", "win-x64", "YTSpotifySync.exe"));
+                exePath = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..", "YTSpotifySync", "bin", config, "net10.0-windows10.0.26100.0", "win-x64", "YTSpotifySync.exe"));
             }
 
             _artifactsDir = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..", "..", "TestArtifacts"));
